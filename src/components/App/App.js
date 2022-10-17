@@ -5,8 +5,10 @@ import { ImageGallery } from "components/ImageGallery/ImageGallery";
 import { Button } from "components/LoadMoreBTN/LoadMoreBTN";
 import { Searchbar } from "components/Searchbar/Searchbar";
 import { PureComponent } from "react";
-import { ProgressBar, Dna } from 'react-loader-spinner'
-import {MainSection, BackPicture} from "./App.styled"
+import { MainSection } from "./App.styled"
+import { Loader } from "components/Loader/Loader";
+import { StartPicture } from "components/StartPicture/StartPicture";
+import { ToTopBTN } from "components/ToTopBTN/ToTopBTN";
 
 const Status = {
     IDLE: 'idle',
@@ -64,36 +66,42 @@ export class AppBox extends PureComponent {
             modalImageId: evt.target.dataset.id
         })
     }
+    backToTop() {
+        const timer = () => {window.scrollBy(0, -300);}
+        const interval = setInterval(timer, 10)
+        setTimeout(() => {
+            clearInterval(interval)
+        }, 1000);
+    }
+
     render() {
         return (
             <>
                 <Searchbar onResult={this.submitInfo} />
 
                 {this.state.status === "pending" &&
-                    <ProgressBar
-                        height="100"
-                        width="1200"
-                        ariaLabel="progress-bar-loading"
-                        wrapperStyle={{}}
-                        wrapperClass="progress-bar-wrapper"
-                        borderColor = '#F4442E'
-                        barColor='#51E5FF' />}
+                    <Loader/>}
+                
                 <MainSection>
+
                     {this.state.status === "idle" && 
-                        <BackPicture src="https://armyinform.com.ua/wp-content/uploads/2022/02/gerb-960x540.jpg" alt="Slava Ukraini"/>
-                    }
+                        <StartPicture/>}
                     
                 {this.state.status === "resolved" && 
                     <ImageGallery imageArr={this.state.images} openLarge={this.openLargeImage} />}
-                {this.state.images.length !== 0 &&
-                    <Button onPage={this.loadMore} />}
-                
+                    
+                    {this.state.images.length !== 0 &&
+                        <>
+                        <Button onPage={this.loadMore} />
+                        <ToTopBTN backToTop={this.backToTop}/>
+                        </>}
+                    
                 </MainSection>
+
                 {this.state.showModal && 
                     <Modal onClose={this.toggleModal}>
                         <BackdropImage key={this.state.modalImageId} largeIMG={this.state.largeIMG} modalTags={this.state.modalTags}/>
-                    </Modal> 
-                }
+                    </Modal> }
             </>
         )
     }
